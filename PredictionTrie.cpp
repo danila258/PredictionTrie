@@ -113,10 +113,10 @@ std::vector<std::string> PredictionTrie::findBestMatches(const std::string& word
             }
     );
 
-    std::vector<std::string> result(allWords.begin(), allWords.begin() + count);
+    std::vector<std::string> result;
 
-    for(auto it = allWords.begin(); it != allWords.end(); it++) {
-        result.push_back()
+    for (int i = 0; i < count; ++i) {
+        result.push_back(std::get<0>(allWords[i]));
     }
 
     return result;

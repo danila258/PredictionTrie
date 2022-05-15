@@ -1,6 +1,7 @@
 #include "PredictionTrie.h"
 
 #include <algorithm>
+#include <stdexcept>
 
 PredictionTrie::PredictionTrie()
 {
@@ -17,6 +18,7 @@ PredictionTrie::~PredictionTrie()
 void PredictionTrie::insert(const std::string& word)
 {
     auto* current = _root;
+
     for (auto letter : word)
     {
         auto foundIt = current->children.find(letter);
@@ -35,10 +37,31 @@ void PredictionTrie::insert(const std::string& word)
 
 void PredictionTrie::remove(const std::string& word)
 {
+    std::string wordCopy = word;
 
+    if ( !isPresented(word) ) {
+        return;
+    }
+
+    for (int i = word.size() - 1; i > -1; --i) {
+        auto* current = find(wordCopy.erase(i + 1, word.size() - 1 - i));
+
+        if (!current->children.empty() && i == word.size() - 1) {
+            current->count = 0;
+            continue;
+        }
+
+        if (current->children.size() > 1) {
+            current->children.erase(word[i + 1]);
+
+            if (!current->children.empty()) {
+                break;
+            }
+        }
+    }
 }
 
-const PredictionTrie::PredictionTrieNode* PredictionTrie::find(const std::string& word) const
+PredictionTrie::PredictionTrieNode* PredictionTrie::find(const std::string& word) const
 {
     auto* current = _root;
     for (auto letter : word)

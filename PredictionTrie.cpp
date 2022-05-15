@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include <iostream>
 
 PredictionTrie::PredictionTrie()
 {
@@ -43,18 +44,22 @@ void PredictionTrie::remove(const std::string& word)
         return;
     }
 
-    for (int i = word.size() - 1; i > -1; --i) {
+    for (int i = word.size() - 1; i > -1; --i)
+    {
         auto* current = find(wordCopy.erase(i + 1, word.size() - 1 - i));
 
-        if (!current->children.empty() && i == word.size() - 1) {
+        if (!current->children.empty() && i == word.size() - 1)
+        {
             current->count = 0;
             continue;
         }
 
-        if (current->children.size() > 1) {
+        if (current->children.size() > 1)
+        {
             current->children.erase(word[i + 1]);
 
-            if (!current->children.empty()) {
+            if (!current->children.empty())
+            {
                 break;
             }
         }
@@ -140,6 +145,7 @@ std::vector<std::string> PredictionTrie::findBestMatches(const std::string& word
 
     for (int i = 0; i < count; ++i) {
         result.push_back(std::get<0>(allWords[i]));
+        qDebug() << QString::fromStdString(result[i]);
     }
 
     return result;

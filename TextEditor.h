@@ -1,6 +1,8 @@
 #ifndef TEXTEDITOR_H
 #define TEXTEDITOR_H
 
+#include "PredictionTrie.h"
+
 #include <QtWidgets>
 
 
@@ -11,14 +13,17 @@ public:
     TextEditor(QWidget* parent = nullptr);
 
 private:
-    void userInputParser();
-
+    void dynamicButtonsUpdate(const QString& word);
+    QPushButton* createDynamicButton(const QString& word);
 
     QVBoxLayout* _dynamicButtonsLayout;
     QTextEdit* _textInputField;
 
-private slots:
+    PredictionTrie _wordsDictionary;
 
+private slots:
+    void userInputParser();
+    void dynamicButtonClicked();
 
 };
 

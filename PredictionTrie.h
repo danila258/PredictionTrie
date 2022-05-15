@@ -1,5 +1,5 @@
-#ifndef PREDICTIONTRIE_PREDICTIONTRIE_H
-#define PREDICTIONTRIE_PREDICTIONTRIE_H
+#ifndef PREDICTIONTRIE_H
+#define PREDICTIONTRIE_H
 
 #include <unordered_map>
 #include <tuple>
@@ -52,4 +52,4 @@ public:
 };
 
 
-#endif //PREDICTIONTRIE_PREDICTIONTRIE_H
+#endif //PREDICTIONTRIE_H

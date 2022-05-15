@@ -13,7 +13,7 @@ find_package(Qt5 COMPONENTS
         Widgets
         REQUIRED)
 
-add_executable(PredictionTrie main.cpp PredictionTrie.cpp PredictionTrie.h)
+add_executable(PredictionTrie main.cpp PredictionTrie.cpp PredictionTrie.h TextEditor.cpp TextEditor.h)
 target_link_libraries(PredictionTrie
         Qt5::Core
         Qt5::Gui

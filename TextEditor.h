@@ -19,7 +19,7 @@ private:
     QVBoxLayout* _dynamicButtonsLayout;
     QTextEdit* _textInputField;
 
-    PredictionTrie _wordsDictionary;
+    PredictionTrie* _wordsDictionary;
 
 private slots:
     void userInputParser();

@@ -10,6 +10,8 @@ TextEditor::TextEditor(QWidget* parent) : QWidget(parent)
     QVBoxLayout* wordDeleteLayout = new QVBoxLayout();
     _dynamicButtonsLayout = new QVBoxLayout();
 
+    _wordsDictionary = new PredictionTrie();
+
     _textInputField = new QTextEdit();
     connect(_textInputField, SIGNAL(textChanged()), SLOT(userInputParser()));
 
@@ -46,7 +48,7 @@ void TextEditor::userInputParser()
 
     for (int i = text.size() - startPos; i > -1; --i)
     {
-        if (i == ' ')
+        if (text[i] == ' ')
         {
             break;
         }
@@ -55,14 +57,13 @@ void TextEditor::userInputParser()
     }
 
     std::reverse(word.begin(), word.end());
-    word = "danila";
 
     if (text[text.size() - 1] == ' ')
     {
         if (word.size() > 1)
         {
             qDebug() << "insert to dictionary";
-            _wordsDictionary.insert(word.toStdString());
+            _wordsDictionary->insert(word.toStdString());
             dynamicButtonsUpdate(" ");
         }
     }
@@ -75,10 +76,14 @@ void TextEditor::userInputParser()
 
 void TextEditor::dynamicButtonsUpdate(const QString& word)
 {
+    qDebug() << "buttons count between del = " << _dynamicButtonsLayout->count();
+
     for(int i = 0; i < _dynamicButtonsLayout->count(); ++i)
     {
+
         QPushButton* button = static_cast<QPushButton*>(_dynamicButtonsLayout->itemAt(i)->widget());
-        delete button;
+        qDebug() << "delete button - " << i;
+        button->deleteLater();
     }
 
 
@@ -87,11 +92,13 @@ void TextEditor::dynamicButtonsUpdate(const QString& word)
         return;
     }
 
-    std::vector<std::string> suitableWords = _wordsDictionary.findBestMatches(word.toStdString(), 5);
+    qDebug() << "buttons count after del = " << _dynamicButtonsLayout->count();
 
-    qDebug() << "update buttons";
-    if (suitableWords.size() > 0)
-        qDebug() << QString::fromStdString(suitableWords[0]);
+    std::vector<std::string> suitableWords = _wordsDictionary->findBestMatches(word.toStdString(), 5);
+
+    for (int i = 0; i < suitableWords.size(); ++i) {
+        qDebug() << "word in suitableWords -" << QString::fromStdString(suitableWords[i]);
+    }
 
     for (int i = 0; i < suitableWords.size(); ++i)
     {
@@ -102,7 +109,7 @@ void TextEditor::dynamicButtonsUpdate(const QString& word)
 
 QPushButton* TextEditor::createDynamicButton(const QString& word)
 {
-    qDebug() << "create buttons";
+    qDebug() << "create button - " << word;
     QPushButton* button = new QPushButton(word);
     connect(button, SIGNAL(clicked()), SLOT(dynamicButtonClicked()));
 

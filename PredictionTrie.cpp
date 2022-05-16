@@ -18,6 +18,8 @@ PredictionTrie::~PredictionTrie()
 
 void PredictionTrie::insert(const std::string& word)
 {
+    qDebug() << "insert ->" << QString::fromStdString(word);
+
     auto* current = _root;
 
     for (auto letter : word)
@@ -131,6 +133,8 @@ std::vector<std::string> PredictionTrie::findBestMatches(const std::string& word
     auto allWords = allWordsStartedWith(wordBegin);
 
     count = allWords.size() < count ? allWords.size() : count;
+
+    qDebug() << "найденных слов" << count;
 
     std::partial_sort(
             std::begin(allWords),

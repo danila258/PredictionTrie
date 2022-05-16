@@ -23,7 +23,5 @@ int main(int argc, char *argv[])
     TextEditor editor;
     editor.show();
 
-    PredictionTrie trie;
-
     return QApplication::exec();
 }

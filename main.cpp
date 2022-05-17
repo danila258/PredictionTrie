@@ -19,7 +19,8 @@ int main(int argc, char *argv[])
 
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling, enableHighDpiScaling);
 
-    QApplication application(argc, argv);
+    QApplication app(argc, argv);
+
     TextEditor editor;
     editor.show();
 

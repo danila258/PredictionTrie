@@ -1,6 +1,7 @@
 #include "TextEditor.h"
 
-TextEditor::TextEditor(QWidget* parent) : QWidget(parent)
+TextEditor::TextEditor(QWidget* parent) : QWidget(parent), _dynamicButtonsLayout(new QVBoxLayout),
+    _wordsDictionary(new PredictionTrie), _textInputField(new QTextEdit)
 {
     setWindowTitle("Text Editor");
     resize(500, 500);
@@ -8,23 +9,19 @@ TextEditor::TextEditor(QWidget* parent) : QWidget(parent)
     QHBoxLayout* mainLayout = new QHBoxLayout();
     QVBoxLayout* toolsLayout = new QVBoxLayout();
     QVBoxLayout* wordDeleteLayout = new QVBoxLayout();
-    _dynamicButtonsLayout = new QVBoxLayout();
 
-    _wordsDictionary = new PredictionTrie();
+    _dynamicButtonsLayout->setContentsMargins(5, 5, 5, 5);
 
-    _textInputField = new QTextEdit();
     connect(_textInputField, SIGNAL(textChanged()), SLOT(userInputParser()));
 
-    QPushButton* calcButton1 = new QPushButton("1");
     QPushButton* calcButton2 = new QPushButton("2");
 
     mainLayout->addWidget(_textInputField);
-    _dynamicButtonsLayout->addWidget(calcButton1);
     wordDeleteLayout->addWidget(calcButton2);
 
-    toolsLayout->addLayout(_dynamicButtonsLayout);
-    toolsLayout->addLayout(wordDeleteLayout);
-    mainLayout->addLayout(toolsLayout);
+    //toolsLayout->addLayout(_dynamicButtonsLayout);
+    //toolsLayout->addLayout(wordDeleteLayout);
+    mainLayout->addLayout(_dynamicButtonsLayout);
 
     setLayout(mainLayout);
 }
@@ -93,6 +90,7 @@ void TextEditor::dynamicButtonsUpdate(const QString& word)
     }
 
     qDebug() << "buttons count after del = " << _dynamicButtonsLayout->count();
+    qDebug() << "spacing = " << _dynamicButtonsLayout->spacing();
 
     std::vector<std::string> suitableWords = _wordsDictionary->findBestMatches(word.toStdString(), 5);
 
@@ -103,8 +101,10 @@ void TextEditor::dynamicButtonsUpdate(const QString& word)
     for (int i = 0; i < suitableWords.size(); ++i)
     {
         QPushButton* button = createDynamicButton(QString::fromStdString(suitableWords[i]));
-        _dynamicButtonsLayout->addWidget(button);
+        _dynamicButtonsLayout->addWidget(button, 10, Qt::AlignTop);
     }
+
+    _dynamicButtonsLayout->addStretch(1);
 }
 
 QPushButton* TextEditor::createDynamicButton(const QString& word)

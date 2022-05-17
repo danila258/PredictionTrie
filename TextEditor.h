@@ -16,7 +16,7 @@ private:
     void dynamicButtonsUpdate(const QString& word);
     QPushButton* createDynamicButton(const QString& word);
 
-    QVBoxLayout* _dynamicButtonsLayout;
+    QHBoxLayout* _dynamicButtonsLayout;
     QTextEdit* _textInputField;
 
     PredictionTrie* _wordsDictionary;

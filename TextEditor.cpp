@@ -1,18 +1,21 @@
 #include "TextEditor.h"
 
-TextEditor::TextEditor(QWidget* parent) : QWidget(parent), _dynamicButtonsLayout(new QVBoxLayout),
+TextEditor::TextEditor(QWidget* parent) : QWidget(parent), _dynamicButtonsLayout(new QHBoxLayout),
     _wordsDictionary(new PredictionTrie), _textInputField(new QTextEdit)
 {
     setWindowTitle("Text Editor");
     resize(500, 500);
 
-    QHBoxLayout* mainLayout = new QHBoxLayout();
-    QVBoxLayout* toolsLayout = new QVBoxLayout();
+    QVBoxLayout* mainLayout = new QVBoxLayout();
     QVBoxLayout* wordDeleteLayout = new QVBoxLayout();
 
-    _dynamicButtonsLayout->setContentsMargins(5, 5, 5, 5);
-
     connect(_textInputField, SIGNAL(textChanged()), SLOT(userInputParser()));
+
+    //_dynamicButtonsLayout->setSpacing(0);
+    //_dynamicButtonsLayout->setContentsMargins(0, 0, 0, 0);
+
+    //mainLayout->setSpacing(0);
+    //mainLayout->setContentsMargins(0, 0, 0, 0);
 
     QPushButton* calcButton2 = new QPushButton("2");
 
@@ -103,8 +106,6 @@ void TextEditor::dynamicButtonsUpdate(const QString& word)
         QPushButton* button = createDynamicButton(QString::fromStdString(suitableWords[i]));
         _dynamicButtonsLayout->addWidget(button, 10, Qt::AlignTop);
     }
-
-    _dynamicButtonsLayout->addStretch(1);
 }
 
 QPushButton* TextEditor::createDynamicButton(const QString& word)

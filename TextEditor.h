@@ -26,6 +26,8 @@ private slots:
     void userInputParser();
     void autoCompleteWord();
     void shortcutButton();
+    void deleteWord();
+
 };
 
 

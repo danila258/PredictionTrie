@@ -15,7 +15,10 @@ TextEditor::TextEditor(QWidget* parent) : QWidget(parent), _dynamicButtonsLayout
     ghostButton->setFixedSize(0, 40);
 
     QPushButton* deleteWordButton = new QPushButton("Delete");
+    QShortcut* shortcutDelete = new QShortcut(QKeySequence("Ctrl+D"), deleteWordButton);
 
+    connect(deleteWordButton, SIGNAL(clicked()), SLOT(deleteWord()));
+    connect(shortcutDelete, SIGNAL(activated()), SLOT(deleteWord()));
     connect(_textInputField, SIGNAL(cursorPositionChanged()), SLOT(userInputParser()));
 
     wordDeleteLayout->addWidget(_wordInput);
@@ -139,6 +142,23 @@ void TextEditor::autoCompleteWord() {
     _textInputField->setTextCursor(cursor);
 }
 
-void TextEditor::shortcutButton() {
+void TextEditor::shortcutButton()
+{
     ((QPushButton*) ((QShortcut*) sender())->parentWidget())->animateClick();
+}
+
+void TextEditor::deleteWord()
+{
+    QString word = _wordInput->text();
+
+    for (int i = 0; i < word.size(); ++i)
+    {
+        if (word[i] == ' ' || word[i] == '\n')
+        {
+            word.remove(i, 1);
+        }
+    }
+
+    qDebug() << "delete word = " << word;
+    _wordsDictionary->remove(word.toStdString());
 }

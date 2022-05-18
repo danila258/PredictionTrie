@@ -16,6 +16,9 @@ private:
     void dynamicButtonsUpdate(const QString& word);
     QPushButton* createDynamicButton(const QString& word);
 
+    QString _lastAddedWord;
+    QString _wordToDelete;
+
     QHBoxLayout* _dynamicButtonsLayout;
     QTextEdit* _textInputField;
 
@@ -23,7 +26,7 @@ private:
 
 private slots:
     void userInputParser();
-    void dynamicButtonClicked();
+    void autoCompleteWord();
 
 };
 

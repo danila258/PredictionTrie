@@ -1,7 +1,9 @@
 #include "TextEditor.h"
 
+#include <QShortcut>
+
 TextEditor::TextEditor(QWidget* parent) : QWidget(parent), _dynamicButtonsLayout(new QHBoxLayout),
-    _wordsDictionary(new PredictionTrie), _textInputField(new QTextEdit)
+    _wordsDictionary(new PredictionTrie), _textInputField(new QTextEdit), _wordInput(new QLineEdit)
 {
     setWindowTitle("Text Editor");
     resize(500, 500);
@@ -9,29 +11,21 @@ TextEditor::TextEditor(QWidget* parent) : QWidget(parent), _dynamicButtonsLayout
     QVBoxLayout* mainLayout = new QVBoxLayout();
     QHBoxLayout* wordDeleteLayout = new QHBoxLayout();
 
-    connect(_textInputField, SIGNAL(textChanged()), SLOT(userInputParser()));
-
-    //_dynamicButtonsLayout->setSpacing(0);
-    //_dynamicButtonsLayout->setContentsMargins(0, 0, 0, 0);
-
-    //mainLayout->setSpacing(1);
-    //mainLayout->setContentsMargins(5, 5, 5, 0);
-
     QPushButton* ghostButton = new QPushButton();
     ghostButton->setFixedSize(0, 40);
 
-    QLineEdit* wordInput = new QLineEdit();
     QPushButton* deleteWordButton = new QPushButton("Delete");
-    QPushButton* deleteLastWordButton = new QPushButton("None");
+
+    connect(_textInputField, SIGNAL(cursorPositionChanged()), SLOT(userInputParser()));
+
+    wordDeleteLayout->addWidget(_wordInput);
+    wordDeleteLayout->addWidget(deleteWordButton);
+
+    _dynamicButtonsLayout->addWidget(ghostButton);
+    _dynamicButtonsLayout->setSpacing(0);
 
     mainLayout->addLayout(wordDeleteLayout);
-
     mainLayout->addWidget(_textInputField);
-    wordDeleteLayout->addWidget(wordInput);
-    wordDeleteLayout->addWidget(deleteWordButton);
-    wordDeleteLayout->addWidget(deleteLastWordButton);
-    _dynamicButtonsLayout->addWidget(ghostButton);
-
     mainLayout->addLayout(_dynamicButtonsLayout);
 
     setLayout(mainLayout);
@@ -43,20 +37,24 @@ void TextEditor::userInputParser()
     QString text = _textInputField->toPlainText();
     QString word;
     int startPos = 1;
-    bool addToDictionary = text[text.size() - 1] == ' ' || text[text.size() - 1] == '\n';
 
-    if ( text.isEmpty() )
+    QTextCursor cursor = _textInputField->textCursor();
+    size_t pos = cursor.position();
+
+    if ( text.isEmpty() || pos == 0)
     {
         dynamicButtonsUpdate(" ");
         return;
     }
+
+    bool addToDictionary = text[pos - 1] == ' ' || text[pos - 1] == '\n';
 
     if (addToDictionary)
     {
         startPos = 2;
     }
 
-    for (int i = text.size() - startPos; i > -1; --i)
+    for (int i = pos - startPos; i > -1; --i)
     {
         if (text[i] == ' ' || text[i] == '\n')
         {
@@ -72,57 +70,43 @@ void TextEditor::userInputParser()
     {
         if (word.size() > 1)
         {
-            qDebug() << "insert to dictionary";
+            _wordInput->setText(word);
             _wordsDictionary->insert(word.toStdString());
             dynamicButtonsUpdate(" ");
         }
     }
     else
     {
-        qDebug() << "not insert";
         dynamicButtonsUpdate(word);
     }
 }
 
 void TextEditor::dynamicButtonsUpdate(const QString& word)
 {
-    qDebug() << "buttons count between del = " << _dynamicButtonsLayout->count();
-
     for(int i = 1; i < _dynamicButtonsLayout->count(); ++i)
     {
-
         QPushButton* button = static_cast<QPushButton*>(_dynamicButtonsLayout->itemAt(i)->widget());
-        qDebug() << "delete button - " << i;
         button->deleteLater();
     }
 
-
-    if (word == " ")
-    {
-        return;
-    }
-
-    qDebug() << "buttons count after del = " << _dynamicButtonsLayout->count();
-    qDebug() << "spacing = " << _dynamicButtonsLayout->spacing();
-
     std::vector<std::string> suitableWords = _wordsDictionary->findBestMatches(word.toStdString(), 5);
-
-    for (int i = 0; i < suitableWords.size(); ++i) {
-        qDebug() << "word in suitableWords -" << QString::fromStdString(suitableWords[i]);
-    }
 
     for (int i = 0; i < suitableWords.size(); ++i)
     {
-        QPushButton* button = createDynamicButton(QString::fromStdString(suitableWords[i]));
+        QPushButton* button = createDynamicButton(QString::fromStdString(suitableWords[i]), i + 1);
         _dynamicButtonsLayout->addWidget(button);
     }
 }
 
-QPushButton* TextEditor::createDynamicButton(const QString& word)
+QPushButton* TextEditor::createDynamicButton(const QString& word, size_t number)
 {
-    qDebug() << "create button - " << word;
     QPushButton* button = new QPushButton(word);
+
+    QString shortcutStr = "Ctrl+" + QString::number(number);
+    QShortcut *shortcut = new QShortcut(QKeySequence(shortcutStr), this);
+
     connect(button, SIGNAL(clicked()), SLOT(autoCompleteWord()));
+    connect(shortcut, SIGNAL(activated()), SLOT(autoCompleteWord()));
 
     return button;
 }
@@ -131,19 +115,26 @@ void TextEditor::autoCompleteWord() {
     QString word = ((QPushButton*) sender())->text();
     QString text = _textInputField->toPlainText();
 
-    for (int i = text.size() - 1; text[i] != ' ' && text[i] != '\n' && i != -1; --i) {
-        if(i == 0) {
-            text.clear();
+    QTextCursor cursor = _textInputField->textCursor();
+    size_t pos = cursor.position();
+
+    size_t delCount = 0;
+
+    for (size_t i = pos - 1; text[i] != ' ' && text[i] != '\n'; --i)
+    {
+        delCount += 1;
+
+        if (i == 0)
+        {
             break;
         }
-
-        text.remove(i, 1);
     }
 
-    _textInputField->setText(text + word);
+    size_t newPos = pos - delCount + word.size();
+
+    _textInputField->setText(text.insert(pos, word.remove(0, delCount)));
     _textInputField->setFocus();
 
-    QTextCursor newCursor = _textInputField->textCursor();
-    newCursor.movePosition(QTextCursor::End);
-    _textInputField->setTextCursor(newCursor);
+    cursor.setPosition(newPos);
+    _textInputField->setTextCursor(cursor);
 }

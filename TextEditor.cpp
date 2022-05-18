@@ -103,10 +103,10 @@ QPushButton* TextEditor::createDynamicButton(const QString& word, size_t number)
     QPushButton* button = new QPushButton(word);
 
     QString shortcutStr = "Ctrl+" + QString::number(number);
-    QShortcut *shortcut = new QShortcut(QKeySequence(shortcutStr), this);
+    QShortcut* shortcut = new QShortcut(QKeySequence(shortcutStr), button);
 
     connect(button, SIGNAL(clicked()), SLOT(autoCompleteWord()));
-    connect(shortcut, SIGNAL(activated()), SLOT(autoCompleteWord()));
+    connect(shortcut, SIGNAL(activated()), SLOT(shortcutButton()));
 
     return button;
 }
@@ -137,4 +137,8 @@ void TextEditor::autoCompleteWord() {
 
     cursor.setPosition(newPos);
     _textInputField->setTextCursor(cursor);
+}
+
+void TextEditor::shortcutButton() {
+    ((QPushButton*) ((QShortcut*) sender())->parentWidget())->animateClick();
 }

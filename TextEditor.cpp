@@ -43,6 +43,7 @@ void TextEditor::userInputParser()
     QString text = _textInputField->toPlainText();
     QString word;
     int startPos = 1;
+    bool addToDictionary = text[text.size() - 1] == ' ' || text[text.size() - 1] == '\n';
 
     if ( text.isEmpty() )
     {
@@ -50,14 +51,14 @@ void TextEditor::userInputParser()
         return;
     }
 
-    if (text[text.size() - 1] == ' ')
+    if (addToDictionary)
     {
         startPos = 2;
     }
 
     for (int i = text.size() - startPos; i > -1; --i)
     {
-        if (text[i] == ' ')
+        if (text[i] == ' ' || text[i] == '\n')
         {
             break;
         }
@@ -67,7 +68,7 @@ void TextEditor::userInputParser()
 
     std::reverse(word.begin(), word.end());
 
-    if (text[text.size() - 1] == ' ')
+    if (addToDictionary)
     {
         if (word.size() > 1)
         {

@@ -13,6 +13,8 @@ public:
     TextEditor(QWidget* parent = nullptr);
 
 private:
+    QMenuBar* topMenu();
+
     void dynamicButtonsUpdate(const QString& word);
     QPushButton* createDynamicButton(const QString& word, size_t number);
 
@@ -23,10 +25,16 @@ private:
     PredictionTrie* _wordsDictionary;
 
 private slots:
+    void openFile();
+    void saveFile();
+
     void userInputParser();
+
     void autoCompleteWord();
-    void shortcutButton();
+    void shortcutAutoCompleteWord();
+
     void deleteWord();
+    void shortcutDeleteWord();
 
 };
 

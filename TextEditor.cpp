@@ -18,7 +18,7 @@ TextEditor::TextEditor(QWidget* parent) : QWidget(parent), _dynamicButtonsLayout
     QShortcut* shortcutDelete = new QShortcut(QKeySequence("Ctrl+D"), deleteWordButton);
 
     connect(deleteWordButton, SIGNAL(clicked()), SLOT(deleteWord()));
-    connect(shortcutDelete, SIGNAL(activated()), SLOT(deleteWord()));
+    connect(shortcutDelete, SIGNAL(activated()), SLOT(shortcutDeleteWord()));
     connect(_textInputField, SIGNAL(cursorPositionChanged()), SLOT(userInputParser()));
 
     wordDeleteLayout->addWidget(_wordInput);
@@ -27,12 +27,34 @@ TextEditor::TextEditor(QWidget* parent) : QWidget(parent), _dynamicButtonsLayout
     _dynamicButtonsLayout->addWidget(ghostButton);
     _dynamicButtonsLayout->setSpacing(0);
 
+    mainLayout->setMenuBar(topMenu());
     mainLayout->addLayout(wordDeleteLayout);
     mainLayout->addWidget(_textInputField);
     mainLayout->addLayout(_dynamicButtonsLayout);
 
     setLayout(mainLayout);
     _textInputField->setFocus();
+}
+
+QMenuBar* TextEditor::topMenu()
+{
+    QMenuBar* menuBar = new QMenuBar(this);
+    QMenu* fileMenu = new QMenu("&File");
+
+    fileMenu->addAction("&Open", this, SLOT(openFile()), Qt::CTRL + Qt::Key_O);
+    fileMenu->addAction("&Save", this, SLOT(saveFile()), Qt::CTRL + Qt::Key_S);
+
+    menuBar->addMenu(fileMenu);
+
+    return  menuBar;
+}
+
+void TextEditor::openFile() {
+
+}
+
+void TextEditor::saveFile() {
+
 }
 
 void TextEditor::userInputParser()
@@ -109,12 +131,13 @@ QPushButton* TextEditor::createDynamicButton(const QString& word, size_t number)
     QShortcut* shortcut = new QShortcut(QKeySequence(shortcutStr), button);
 
     connect(button, SIGNAL(clicked()), SLOT(autoCompleteWord()));
-    connect(shortcut, SIGNAL(activated()), SLOT(shortcutButton()));
+    connect(shortcut, SIGNAL(activated()), SLOT(shortcutAutoCompleteWord()));
 
     return button;
 }
 
-void TextEditor::autoCompleteWord() {
+void TextEditor::autoCompleteWord()
+{
     QString word = ((QPushButton*) sender())->text();
     QString text = _textInputField->toPlainText();
 
@@ -142,7 +165,7 @@ void TextEditor::autoCompleteWord() {
     _textInputField->setTextCursor(cursor);
 }
 
-void TextEditor::shortcutButton()
+void TextEditor::shortcutAutoCompleteWord()
 {
     ((QPushButton*) ((QShortcut*) sender())->parentWidget())->animateClick();
 }
@@ -151,14 +174,20 @@ void TextEditor::deleteWord()
 {
     QString word = _wordInput->text();
 
-    for (int i = 0; i < word.size(); ++i)
+    if (!_wordsDictionary->isPresented( word.toStdString() ))
     {
-        if (word[i] == ' ' || word[i] == '\n')
-        {
-            word.remove(i, 1);
-        }
+        qDebug() << "no word = " << word;
+        _wordInput->setText("error");
     }
+    else
+    {
+        qDebug() << "remove = " << word;
+        _wordsDictionary->remove( word.toStdString() );
+        _wordInput->clear();
+    }
+}
 
-    qDebug() << "delete word = " << word;
-    _wordsDictionary->remove(word.toStdString());
+void TextEditor::shortcutDeleteWord()
+{
+    ((QPushButton*) ((QShortcut*) sender())->parentWidget())->animateClick();
 }

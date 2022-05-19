@@ -13,7 +13,9 @@ PredictionTrie::PredictionTrie()
 
 PredictionTrie::~PredictionTrie()
 {
-
+    for (auto& i : _nodeVector) {
+        delete i;
+    }
 }
 
 void PredictionTrie::insert(const std::string& word)
@@ -25,6 +27,8 @@ void PredictionTrie::insert(const std::string& word)
     for (auto letter : word)
     {
         auto foundIt = current->children.find(letter);
+        _nodeVector.push_back(current);
+
         if (foundIt == current->children.end())
         {
             auto [it, _] = current->children.emplace(letter, new PredictionTrieNode);

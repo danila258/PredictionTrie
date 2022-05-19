@@ -24,6 +24,11 @@ private:
 
     PredictionTrie* _wordsDictionary;
 
+    bool _saveFlag;
+
+public:
+    void closeEvent(QCloseEvent *event) override;
+
 private slots:
     void openFile();
     void saveFile();

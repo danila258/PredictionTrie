@@ -3,7 +3,7 @@
 #include <QShortcut>
 
 TextEditor::TextEditor(QWidget* parent) : QWidget(parent), _dynamicButtonsLayout(new QHBoxLayout),
-    _wordsDictionary(new PredictionTrie), _textInputField(new QTextEdit), _wordInput(new QLineEdit)
+    _wordsDictionary(new PredictionTrie), _textInputField(new QTextEdit), _wordInput(new QLineEdit), _saveFlag(false)
 {
     setWindowTitle("Text Editor");
     resize(500, 500);
@@ -49,12 +49,73 @@ QMenuBar* TextEditor::topMenu()
     return  menuBar;
 }
 
-void TextEditor::openFile() {
+void TextEditor::openFile()
+{
+    QString text;
+    QString line;
 
+    QString filePath = QFileDialog::getOpenFileName(this, "Open File", "", "*.txt");
+    QFile file(filePath);
+
+    QVector<QString> words;
+
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        return;
+    }
+
+    QTextStream fileStream(&file);
+
+    while (!fileStream.atEnd())
+    {
+        line = fileStream.readLine();
+        text += line + "\n";
+        words.append(line.split(' '));
+    }
+
+    text.remove(text.size() - 1, 1);
+
+    for (int i = 0; i < words.size(); ++i) {
+        if (words[i].size() > 1) {
+            _wordsDictionary->insert(words[i].toStdString());
+        }
+    }
+
+    _saveFlag = false;
+    _textInputField->setText(text);
 }
 
-void TextEditor::saveFile() {
+void TextEditor::saveFile()
+{
+    QString filePath = QFileDialog::getSaveFileName(this, "Save File", "", "*.txt");
+    QFile file(filePath);
+    QString text = _textInputField->toPlainText();
 
+    if (file.open(QIODevice::ReadWrite)) {
+        QTextStream stream(&file);
+        stream << text;
+
+        _saveFlag = true;
+    }
+}
+
+void TextEditor::closeEvent(QCloseEvent *event)
+{
+    QMessageBox::StandardButton userAnswer = QMessageBox::question(this, "Text Editor",
+                                                                   tr("Do you want to save the file??\n"),
+                                                                QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+                                                                   QMessageBox::Yes);
+    if (userAnswer == QMessageBox::Yes)
+    {
+        saveFile();
+        event->ignore();
+    }
+    else if (userAnswer == QMessageBox::No) {
+        event->accept();
+    }
+    else {
+        event->ignore();
+    }
 }
 
 void TextEditor::userInputParser()

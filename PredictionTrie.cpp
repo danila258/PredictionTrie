@@ -58,10 +58,12 @@ void PredictionTrie::remove(const std::string& word)
 
         if (current->children.size() > 1)
         {
+
             current->children.erase(word[i + 1]);
 
             if (!current->children.empty())
             {
+                current->type = PredictionTrie::PredictionTrieNode::Type::Leaf;
                 break;
             }
         }

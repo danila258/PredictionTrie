@@ -39,10 +39,11 @@ TextEditor::TextEditor(QWidget* parent) : QWidget(parent), _dynamicButtonsLayout
 QMenuBar* TextEditor::topMenu()
 {
     QMenuBar* menuBar = new QMenuBar(this);
-    QMenu* fileMenu = new QMenu("&File");
+    QMenu* fileMenu = new QMenu("&Menu");
 
     fileMenu->addAction("&Open", this, SLOT(openFile()), Qt::CTRL + Qt::Key_O);
     fileMenu->addAction("&Save", this, SLOT(saveFile()), Qt::CTRL + Qt::Key_S);
+    fileMenu->addAction("&Font size", this, SLOT(menuFontSize()));
 
     menuBar->addMenu(fileMenu);
 
@@ -75,8 +76,10 @@ void TextEditor::openFile()
 
     text.remove(text.size() - 1, 1);
 
-    for (int i = 0; i < words.size(); ++i) {
-        if (words[i].size() > 1) {
+    for (int i = 0; i < words.size(); ++i)
+    {
+        if (words[i].size() > 1)
+        {
             _wordsDictionary->insert(words[i].toStdString());
         }
     }
@@ -91,7 +94,8 @@ void TextEditor::saveFile()
     QFile file(filePath);
     QString text = _textInputField->toPlainText();
 
-    if (file.open(QIODevice::ReadWrite)) {
+    if (file.open(QIODevice::ReadWrite))
+    {
         QTextStream stream(&file);
         stream << text;
 
@@ -101,16 +105,22 @@ void TextEditor::saveFile()
 
 void TextEditor::closeEvent(QCloseEvent *event)
 {
+    if (_saveFlag)
+    {
+        return;
+    }
+
     QMessageBox::StandardButton userAnswer = QMessageBox::question(this, "Text Editor",
-                                                                   tr("Do you want to save the file??\n"),
-                                                                QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+                                                                   tr("Do you want to save the file?\n"),
+                                                                   QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
                                                                    QMessageBox::Yes);
     if (userAnswer == QMessageBox::Yes)
     {
         saveFile();
         event->ignore();
     }
-    else if (userAnswer == QMessageBox::No) {
+    else if (userAnswer == QMessageBox::No)
+    {
         event->accept();
     }
     else {
@@ -251,4 +261,58 @@ void TextEditor::deleteWord()
 void TextEditor::shortcutDeleteWord()
 {
     ((QPushButton*) ((QShortcut*) sender())->parentWidget())->animateClick();
+}
+
+void TextEditor::menuFontSize()
+{
+    QDialog* fontSizeWidget = new QDialog(this, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
+
+    QVBoxLayout* mainLayout = new QVBoxLayout();
+    QHBoxLayout* spinLayout = new QHBoxLayout();
+    QHBoxLayout* buttonsLayout = new QHBoxLayout();
+
+    QLabel* fontSizeLabel = new QLabel("Font size");
+
+    QPushButton* okButton = new QPushButton("&Ok");
+    QPushButton* cancelButton = new QPushButton("&Cancel");
+
+    QSpinBox* fontSizeSpinBox = new QSpinBox();
+    fontSizeSpinBox->setRange(5, 50);
+    fontSizeSpinBox->setSuffix(" px");
+    fontSizeSpinBox->setValue(_textInputField->font().pointSize());
+
+    connect(fontSizeSpinBox, SIGNAL(valueChanged(int)), SLOT(checkSpinBox(int)));
+    connect(okButton, SIGNAL(clicked()), SLOT(setFont()));
+    connect(cancelButton, SIGNAL(clicked()), SLOT(cancelSetFont()));
+
+    spinLayout->addWidget(fontSizeLabel);
+    spinLayout->addWidget(fontSizeSpinBox);
+
+    buttonsLayout->addWidget(okButton);
+    buttonsLayout->addWidget(cancelButton);
+
+    mainLayout->addLayout(spinLayout);
+    mainLayout->addLayout(buttonsLayout);
+
+    fontSizeWidget->setLayout(mainLayout);
+
+    fontSizeWidget->show();
+}
+
+void TextEditor::checkSpinBox(int size)
+{
+    _fontSize = size;
+}
+
+void TextEditor::setFont()
+{
+    QString line = "font-size: " + QString::number(_fontSize) + "px";
+    _textInputField->setStyleSheet(line);
+
+    sender()->parent()->deleteLater();
+}
+
+void TextEditor::cancelSetFont()
+{
+    sender()->parent()->deleteLater();
 }

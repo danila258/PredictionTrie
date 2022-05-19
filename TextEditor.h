@@ -24,6 +24,8 @@ private:
 
     PredictionTrie* _wordsDictionary;
 
+    int _fontSize;
+
     bool _saveFlag;
 
 public:
@@ -40,6 +42,12 @@ private slots:
 
     void deleteWord();
     void shortcutDeleteWord();
+
+    void menuFontSize();
+
+    void checkSpinBox(int size);
+    void setFont();
+    void cancelSetFont();
 
 };
 

@@ -13,7 +13,8 @@ PredictionTrie::PredictionTrie()
 
 PredictionTrie::~PredictionTrie()
 {
-    for (auto& i : _nodeVector) {
+    for (auto& i : _nodeVector)
+    {
         delete i;
     }
 }

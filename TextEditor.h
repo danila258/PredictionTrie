@@ -24,6 +24,7 @@ private:
 
     PredictionTrie* _wordsDictionary;
 
+    int _oldTextSize;
     int _fontSize;
 
     bool _saveFlag;

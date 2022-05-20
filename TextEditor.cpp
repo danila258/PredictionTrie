@@ -3,7 +3,8 @@
 #include <QShortcut>
 
 TextEditor::TextEditor(QWidget* parent) : QWidget(parent), _dynamicButtonsLayout(new QHBoxLayout),
-    _wordsDictionary(new PredictionTrie), _textInputField(new QTextEdit), _wordInput(new QLineEdit), _saveFlag(false)
+    _wordsDictionary(new PredictionTrie), _textInputField(new QTextEdit), _wordInput(new QLineEdit), _oldTextSize(0),
+    _saveFlag(false)
 {
     setWindowTitle("Text Editor");
     resize(500, 500);
@@ -84,8 +85,9 @@ void TextEditor::openFile()
         }
     }
 
-    _saveFlag = false;
     _textInputField->setText(text);
+    _oldTextSize = text.size();
+    _saveFlag = false;
 }
 
 void TextEditor::saveFile()
@@ -166,8 +168,12 @@ void TextEditor::userInputParser()
     {
         if (word.size() > 1)
         {
-            _wordInput->setText(word);
-            _wordsDictionary->insert(word.toStdString());
+            if ( _oldTextSize < text.size() )
+            {
+                _wordInput->setText(word);
+                _wordsDictionary->insert(word.toStdString());
+            }
+
             dynamicButtonsUpdate(" ");
         }
     }
@@ -175,6 +181,8 @@ void TextEditor::userInputParser()
     {
         dynamicButtonsUpdate(word);
     }
+
+    _oldTextSize = text.size();
 }
 
 void TextEditor::dynamicButtonsUpdate(const QString& word)

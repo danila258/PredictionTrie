@@ -55,8 +55,9 @@ void TextEditor::openFile()
 {
     QString text;
     QString line;
+    QString word;
 
-    QString filePath = QFileDialog::getOpenFileName(this, "Open File", "", "*.txt");
+    QString filePath = QFileDialog::getOpenFileName(this, "Open File", "", "*.*");
     QFile file(filePath);
 
     QVector<QString> words;
@@ -72,7 +73,17 @@ void TextEditor::openFile()
     {
         line = fileStream.readLine();
         text += line + "\n";
-        words.append(line.split(' '));
+
+        for (int i = 0; i < line.size(); ++i) {
+            if ('a' <= line[i].toLower() && line[i].toLower() <= 'z' || '0' <= line[i] && line[i] <= '9') {
+                word.push_back(line[i].toLower());
+            }
+            else {
+                words.append(word);
+                qDebug() << word;
+                word.clear();
+            }
+        }
     }
 
     text.remove(text.size() - 1, 1);
@@ -145,7 +156,8 @@ void TextEditor::userInputParser()
         return;
     }
 
-    bool addToDictionary = text[pos - 1] == ' ' || text[pos - 1] == '\n';
+    bool addToDictionary = !('a' <= text[pos - 1].toLower() && text[pos - 1].toLower() <= 'z' ||
+                             '0' <= text[pos - 1] && text[pos - 1] <= '9');
 
     if (addToDictionary)
     {
@@ -154,12 +166,12 @@ void TextEditor::userInputParser()
 
     for (int i = pos - startPos; i > -1; --i)
     {
-        if (text[i] == ' ' || text[i] == '\n')
+        if ( !('a' <= text[i].toLower() && text[i].toLower() <= 'z' || '0' <= text[i] && text[i] <= '9') )
         {
             break;
         }
 
-        word += text[i];
+        word += text[i].toLower();
     }
 
     std::reverse(word.begin(), word.end());
@@ -172,6 +184,7 @@ void TextEditor::userInputParser()
             {
                 _wordInput->setText(word);
                 _wordsDictionary->insert(word.toStdString());
+                qDebug() << "insert =" << word;
             }
 
             dynamicButtonsUpdate(" ");
@@ -225,8 +238,13 @@ void TextEditor::autoCompleteWord()
 
     size_t delCount = 0;
 
-    for (size_t i = pos - 1; text[i] != ' ' && text[i] != '\n'; --i)
+    for (size_t i = pos - 1; ; --i)
     {
+        if ( !('a' <= text[i].toLower() && text[i].toLower() <= 'z' || '0' <= text[i] && text[i] <= '9') )
+        {
+            break;
+        }
+
         delCount += 1;
 
         if (i == 0)
@@ -251,19 +269,8 @@ void TextEditor::shortcutAutoCompleteWord()
 
 void TextEditor::deleteWord()
 {
-    QString word = _wordInput->text();
-
-    if (!_wordsDictionary->isPresented( word.toStdString() ))
-    {
-        qDebug() << "no word = " << word;
-        _wordInput->setText("error");
-    }
-    else
-    {
-        qDebug() << "remove = " << word;
-        _wordsDictionary->remove( word.toStdString() );
-        _wordInput->clear();
-    }
+    _wordsDictionary->remove( _wordInput->text().toStdString() );
+    _wordInput->clear();
 }
 
 void TextEditor::shortcutDeleteWord()

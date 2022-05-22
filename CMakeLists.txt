@@ -6,8 +6,9 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+set(CMAKE_PREFIX_PATH "/Users/danila/Qt/6.2.4/macos/lib/cmake")
 
-find_package(Qt5 COMPONENTS
+find_package(Qt6 COMPONENTS
         Core
         Gui
         Widgets
@@ -15,8 +16,8 @@ find_package(Qt5 COMPONENTS
 
 add_executable(PredictionTrie main.cpp PredictionTrie.cpp PredictionTrie.h TextEditor.cpp TextEditor.h)
 target_link_libraries(PredictionTrie
-        Qt5::Core
-        Qt5::Gui
-        Qt5::Widgets
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
         )
 

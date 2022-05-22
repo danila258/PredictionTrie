@@ -6,11 +6,9 @@
 #include <vector>
 #include <string>
 
-#include <QtWidgets>
 
-class PredictionTrie : public QWidget
+class PredictionTrie
 {
-    Q_OBJECT
     using MatchedPair = std::tuple<std::string, unsigned int>;
 
     struct PredictionTrieNode

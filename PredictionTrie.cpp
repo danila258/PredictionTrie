@@ -21,8 +21,6 @@ PredictionTrie::~PredictionTrie()
 
 void PredictionTrie::insert(const std::string& word)
 {
-    qDebug() << "insert ->" << QString::fromStdString(word);
-
     auto* current = _root;
 
     for (auto letter : word)
@@ -63,8 +61,8 @@ void PredictionTrie::remove(const std::string& word)
 
         if (current->children.size() > 1)
         {
-
             current->children.erase(word[i + 1]);
+            current->type = PredictionTrie::PredictionTrieNode::Type::Regular;
 
             if (!current->children.empty())
             {
@@ -141,8 +139,6 @@ std::vector<std::string> PredictionTrie::findBestMatches(const std::string& word
 
     count = allWords.size() < count ? allWords.size() : count;
 
-    qDebug() << "найденных слов" << count;
-
     std::partial_sort(
             std::begin(allWords),
             allWords.begin() + count,
@@ -154,9 +150,17 @@ std::vector<std::string> PredictionTrie::findBestMatches(const std::string& word
 
     std::vector<std::string> result;
 
+    /*
+    std::transform(std::begin(allWords),
+                   std::begin(allWords) + count,
+                   std::back_inserter(result),
+                   [](const auto& item) {
+        return std::get<0>(item);
+    });
+    */
+
     for (int i = 0; i < count; ++i) {
         result.push_back(std::get<0>(allWords[i]));
-        qDebug() << QString::fromStdString(result[i]);
     }
 
     return result;

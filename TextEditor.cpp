@@ -74,13 +74,15 @@ void TextEditor::openFile()
         line = fileStream.readLine();
         text += line + "\n";
 
-        for (int i = 0; i < line.size(); ++i) {
-            if ('a' <= line[i].toLower() && line[i].toLower() <= 'z' || '0' <= line[i] && line[i] <= '9') {
+        for (int i = 0; i < line.size(); ++i)
+        {
+            if ('a' <= line[i].toLower() && line[i].toLower() <= 'z' || '0' <= line[i] && line[i] <= '9')
+            {
                 word.push_back(line[i].toLower());
             }
-            else {
+            else
+            {
                 words.append(word);
-                qDebug() << word;
                 word.clear();
             }
         }
@@ -93,6 +95,7 @@ void TextEditor::openFile()
         if (words[i].size() > 1)
         {
             _wordsDictionary->insert(words[i].toStdString());
+            qDebug() << words[i];
         }
     }
 

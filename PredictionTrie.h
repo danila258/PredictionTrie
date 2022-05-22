@@ -27,8 +27,6 @@ class PredictionTrie
 
     PredictionTrieNode* _root;
 
-    std::vector<PredictionTrieNode*> _nodeVector;
-
     PredictionTrieNode* find(const std::string& word) const;
 
     void collectAllWordsStartedWith(

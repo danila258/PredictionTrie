@@ -11,14 +11,6 @@ PredictionTrie::PredictionTrie()
     _root->type = PredictionTrie::PredictionTrieNode::Type::Root;
 }
 
-PredictionTrie::~PredictionTrie()
-{
-    for (auto& i : _nodeVector)
-    {
-        delete i;
-    }
-}
-
 void PredictionTrie::insert(const std::string& word)
 {
     auto* current = _root;
@@ -26,7 +18,6 @@ void PredictionTrie::insert(const std::string& word)
     for (auto letter : word)
     {
         auto foundIt = current->children.find(letter);
-        _nodeVector.push_back(current);
 
         if (foundIt == current->children.end())
         {
@@ -45,30 +36,35 @@ void PredictionTrie::remove(const std::string& word)
 {
     std::string wordCopy = word;
 
-    if ( !isPresented(word) ) {
-        return;
-    }
-
     for (int i = word.size() - 1; i > -1; --i)
     {
         auto* current = find(wordCopy.erase(i + 1, word.size() - 1 - i));
 
-        if (!current->children.empty() && i == word.size() - 1)
+        if (current == nullptr)
         {
-            current->count = 0;
+            break;
+        }
+
+        if (i == word.size() - 1)
+        {
+            if ( !current->children.empty() ) {
+                current->type = PredictionTrie::PredictionTrieNode::Type::Regular;
+                current->count = 0;
+                break;
+            }
+
             continue;
         }
 
-        if (current->children.size() > 1)
-        {
-            current->children.erase(word[i + 1]);
-            current->type = PredictionTrie::PredictionTrieNode::Type::Regular;
+        current->children.erase(word[i + 1]);
 
-            if (!current->children.empty())
-            {
-                current->type = PredictionTrie::PredictionTrieNode::Type::Leaf;
-                break;
-            }
+        if ( !current->children.empty() ) {
+            break;
+        }
+
+        if (current->type == PredictionTrie::PredictionTrieNode::Type::Leaf)
+        {
+            break;
         }
     }
 }

@@ -49,6 +49,8 @@ public:
     std::vector<MatchedPair> allWordsStartedWith(const std::string& wordBegin) const;
     std::string findBestMatch(const std::string& wordBegin) const;
     std::vector<std::string> findBestMatches(const std::string& wordBegin, unsigned count) const;
+
+    void clear(PredictionTrieNode* node);
 };
 
 

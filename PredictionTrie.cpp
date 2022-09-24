@@ -11,6 +11,24 @@ PredictionTrie::PredictionTrie()
     _root->type = PredictionTrie::PredictionTrieNode::Type::Root;
 }
 
+PredictionTrie::~PredictionTrie()
+{
+    clear(_root);
+}
+
+void PredictionTrie::clear(PredictionTrieNode* node)
+{
+    if (node->children.empty())
+    {
+        return;
+    }
+    for (auto& ch: node->children)
+    {
+        clear(ch.second);
+        delete ch.second;
+    }
+}
+
 void PredictionTrie::insert(const std::string& word)
 {
     auto* current = _root;
